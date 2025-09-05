@@ -13,24 +13,33 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       color: white;
       text-align: center;
     }
     .overlay {
-      background: rgba(0, 0, 0, 0.5);
-      padding: 30px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 40px;
       border-radius: 20px;
       max-width: 600px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
       opacity: 0;
       animation: fadeIn 2s forwards;
+      position: relative;
     }
     @keyframes fadeIn {
       to { opacity: 1; }
     }
-    h1 { font-size: 2.5em; margin-bottom: 10px; }
-    p { font-size: 1.2em; margin: 15px 0; }
+    h1 { 
+      font-size: 2.5em; 
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    p { 
+      font-size: 1.2em; 
+      margin: 15px 0; 
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
     .emoji {
       font-size: 2.5em;
       margin-top: 20px;
@@ -40,13 +49,111 @@
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-10px); }
     }
-    .audio-iframe {
+    
+    /* Botón de música */
+    .music-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1.5em;
+    }
+    
+    .music-button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+    
+    .music-button.playing {
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    /* Mensaje inicial para activar audio */
+    .audio-prompt {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      color: white;
+      text-align: center;
+    }
+    
+    .audio-prompt-content {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .play-button {
+      background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 50px;
+      font-size: 1.2em;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: transform 0.2s;
+    }
+    
+    .play-button:hover {
+      transform: scale(1.05);
+    }
+    
+    .hidden {
       display: none;
+    }
+    
+    /* YouTube player oculto */
+    .youtube-player {
+      position: absolute;
+      top: -1000px;
+      left: -1000px;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
     }
   </style>
 </head>
 <body>
+  <!-- Mensaje inicial para activar audio -->
+  <div class="audio-prompt" id="audioPrompt">
+    <div class="audio-prompt-content">
+      <h2>🎵 ¡Hola Chema! 🎵</h2>
+      <p>¡Tu sorpresa viene con música especial!</p>
+      <p>Haz clic para activar el audio y empezar la experiencia completa</p>
+      <button class="play-button" onclick="startExperience()">🎶 ¡Empezar con música! 🎶</button>
+    </div>
+  </div>
+
   <div class="overlay">
+    <!-- Botón de control de música -->
+    <div class="music-button" id="musicButton" onclick="toggleMusic()">
+      🎵
+    </div>
+    
     <h1>🎉 ¡Feliz cumpleaños, Chema! 🎉</h1>
     <p>Este lunes 8 de septiembre tienes una sorpresa muy especial preparada solo para ti.</p>
     <p>No preguntes más... 😉</p>
@@ -56,10 +163,87 @@
     <div class="emoji">💙💦</div>
   </div>
 
-  <!-- Música de fondo (YouTube) -->
-  <iframe class="audio-iframe"
-      src="https://www.youtube.com/embed/ibO1U5OyTQY?autoplay=1&loop=1&playlist=ibO1U5OyTQY"
-      allow="autoplay"
-  ></iframe>
+  <!-- YouTube Player (oculto) -->
+  <div id="youtube-player" class="youtube-player"></div>
+
+  <script>
+    let player;
+    let isPlaying = false;
+    
+    // Cargar la API de YouTube
+    function loadYouTubeAPI() {
+      const tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    }
+    
+    // Función llamada cuando la API de YouTube está lista
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('youtube-player', {
+        height: '1',
+        width: '1',
+        videoId: 'ibO1U5OyTQY',
+        playerVars: {
+          'autoplay': 0,
+          'controls': 0,
+          'disablekb': 1,
+          'enablejsapi': 1,
+          'fs': 0,
+          'modestbranding': 1,
+          'playsinline': 1,
+          'rel': 0,
+          'showinfo': 0
+        },
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange
+        }
+      });
+    }
+    
+    function onPlayerReady(event) {
+      // Player está listo
+      console.log('Player listo');
+    }
+    
+    function onPlayerStateChange(event) {
+      if (event.data == YT.PlayerState.ENDED) {
+        // Reiniciar cuando termine
+        player.playVideo();
+      }
+    }
+    
+    function startExperience() {
+      // Ocultar el prompt
+      document.getElementById('audioPrompt').classList.add('hidden');
+      
+      // Intentar reproducir música
+      if (player && player.playVideo) {
+        player.playVideo();
+        isPlaying = true;
+        document.getElementById('musicButton').classList.add('playing');
+      }
+    }
+    
+    function toggleMusic() {
+      if (!player || !player.playVideo) return;
+      
+      if (isPlaying) {
+        player.pauseVideo();
+        isPlaying = false;
+        document.getElementById('musicButton').classList.remove('playing');
+        document.getElementById('musicButton').innerHTML = '🔇';
+      } else {
+        player.playVideo();
+        isPlaying = true;
+        document.getElementById('musicButton').classList.add('playing');
+        document.getElementById('musicButton').innerHTML = '🎵';
+      }
+    }
+    
+    // Cargar la API cuando se carga la página
+    loadYouTubeAPI();
+  </script>
 </body>
 </html>
