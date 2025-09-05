@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sorpresa para Chema</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: url('IMG-20250713-WA0046.jpg') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0; padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+      text-align: center;
+    }
+    .overlay {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 30px;
+      border-radius: 20px;
+      max-width: 600px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      opacity: 0;
+      animation: fadeIn 2s forwards;
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+    h1 { font-size: 2.5em; margin-bottom: 10px; }
+    p { font-size: 1.2em; margin: 15px 0; }
+    .emoji {
+      font-size: 2.5em;
+      margin-top: 20px;
+      animation: bounce 1.5s infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .audio-iframe {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <h1>🎉 ¡Feliz cumpleaños, Chema! 🎉</h1>
+    <p>Este lunes 8 de septiembre tienes una sorpresa muy especial preparada solo para ti.</p>
+    <p>No preguntes más... 😉</p>
+    <p>Lo único que necesitas es:</p>
+    <p>🩲 Tu bañador<br>😎 Buen humor<br>💦 Muchas ganas de disfrutar</p>
+    <p><em>Espero que disfrutes de esta sorpresa. Prepárate para un día especial… y déjalo en mis manos ✨</em></p>
+    <div class="emoji">💙💦</div>
+  </div>
+
+  <!-- Música de fondo (YouTube) -->
+  <iframe class="audio-iframe"
+      src="https://www.youtube.com/embed/ibO1U5OyTQY?autoplay=1&loop=1&playlist=ibO1U5OyTQY"
+      allow="autoplay"
+  ></iframe>
+</body>
+</html>
